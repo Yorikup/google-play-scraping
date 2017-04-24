@@ -10,8 +10,9 @@ var gplay = require('google-play-scraper'),
     fieldNames = ['Number', 'Name', 'Email', 'Installs', 'Rating'],
 
     searchTerm = process.argv[2] || "",
-    searchCountry = process.argv[3] || "ru",
-    searchLanguage = process.argv[4] || "ru";
+    savingFormat = process.argv[3] || "csv",
+    searchCountry = process.argv[4] || "ru",
+    searchLanguage = process.argv[5] || "ru";
 
 var appData = function(appNumber, appName, appDevEmail, appInstalls, appRating) {
   this.number = appNumber;
@@ -21,6 +22,7 @@ var appData = function(appNumber, appName, appDevEmail, appInstalls, appRating) 
   this.rating = appRating;
 };
 
+/* google-play-scraper module starts to search links according to our searchTerm */
 gplay.search({
   term: searchTerm,
   num: 250,
@@ -28,10 +30,12 @@ gplay.search({
   lang: searchLanguage
   }).then(
   response =>{
+    /* creating appIdArray to contain application Ids that we will need for finding needed pages */
     appIdArray = [];
     for (var i = 0; i <= response.length - 1; i++) {
       appIdArray.push(response[i].appId);
     }
+    /* fire getData function */
     getData(appIdArray, 0)
     },
     error => {
@@ -40,8 +44,10 @@ gplay.search({
     } 
   );
 
+/* function that workes with results that we have got from google-play-scraper module */
 function getData(appIdArray, appIndex){
   var appID = appIdArray[appIndex];
+  /* taking data from needed app page by Id */
   gplay.app({
     appId: appID,
     lang: searchLanguage,
@@ -55,13 +61,19 @@ function getData(appIdArray, appIndex){
         var score = response.score.toString().replace('.', ',');
         var number = appIndex + 1;
         writingData.push(new appData(number, title, email, installs, score));
+        /* If we have some pages left going to the next page or saving results */
         if (appIndex < appIdArray.length -1){
-          console.log('Collecting the data about ' + number + ' application of 250.');
+          console.log('Collecting the data about ' + number + ' application of ' + appIdArray.length);
           appIndex++;
           getData(appIdArray, appIndex);
         } else {
-          var csv = json2csv({ data: writingData, fields: fields, fieldNames: fieldNames, del: ';' });
-          saveAsCSV('VideoCallSearchResults.csv', csv);
+          /* saving results according to needed format */
+          if (savingFormat == "json"){
+            saveAsJSON(searchTerm + 'SearchResults.json', writingData);
+          } else {
+            var csv = json2csv({ data: writingData, fields: fields, fieldNames: fieldNames, del: ';' });
+            saveAsCSV(searchTerm + 'SearchResults.csv', csv);
+          };
         };
       },
       error => {
@@ -78,8 +90,18 @@ function getData(appIdArray, appIndex){
     );
 };
 
+/* function saving object to .csv file */
 function saveAsCSV(filename, csv) {
   fs.writeFile(filename, iconv.encode(csv, 'win1251'), function(err) {
+    if (err) throw err;
+    console.log('File successfully saved!');
+    process.exit(0);
+  });
+};
+
+/* function saving object to .json file */
+function saveAsJSON(filename, object) {
+  fs.writeFile(filename, JSON.stringify(object), function (err) {
     if (err) throw err;
     console.log('File successfully saved!');
     process.exit(0);
