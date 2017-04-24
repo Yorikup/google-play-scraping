@@ -1,0 +1,34 @@
+{
+  "name": "google-play-scraping",
+  "version": "1.0.0",
+  "description": "small script based on google play scraper module",
+  "main": "script.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "yorik",
+  "license": "ISC",
+  "dependencies": {
+    "fs": "0.0.1-security",
+    "google-play-scraper": "^3.2.4",
+    "iconv-lite": "^0.4.15",
+    "json2csv": "^3.7.3"
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Yorikup/google-play-scraping.git"
+  },
+  "keywords": [
+    "google",
+    "play",
+    "scraping",
+    "nodejs",
+    "javascript",
+    "parsing"
+  ],
+  "bugs": {
+    "url": "https://github.com/Yorikup/google-play-scraping/issues"
+  },
+  "homepage": "https://github.com/Yorikup/google-play-scraping#readme"
+}
